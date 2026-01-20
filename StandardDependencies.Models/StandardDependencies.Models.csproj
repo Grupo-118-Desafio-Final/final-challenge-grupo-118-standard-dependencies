@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -15,5 +16,9 @@
         <PackageProjectUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</RepositoryUrl>
     </PropertyGroup>
-    
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
 </Project>
