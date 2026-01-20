@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <PackageId>FinalChallenge.Grupo118.StandardDependencies.Models</PackageId>
+        <Authors>Grupo 118</Authors>
+        <Description>Pacote para facilitar a criação das APIs utilizadas no trabalho final com seus modelos</Description>
+        <PackageProjectUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</RepositoryUrl>
+    </PropertyGroup>
+    
+</Project>

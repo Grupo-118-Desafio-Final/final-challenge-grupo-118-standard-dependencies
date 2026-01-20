@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <PackageId>FinalChallenge.Grupo118.StandardDependencies.Injection</PackageId>
+        <Authors>Grupo 118</Authors>
+        <Description>Pacote para facilitar a criação das APIs utilizadas no trabalho final</Description>
+        <PackageProjectUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Grupo-118-Desafio-Final/final-challenge-grupo-118-standard-dependencies</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\StandardDependencies.Models\StandardDependencies.Models.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4"/>
+        <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="3.0.0"/>
+        <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="1.0.0"/>
+        <PackageReference Include="Npgsql.OpenTelemetry" Version="9.0.3"/>
+        <PackageReference Include="OpenTelemetry" Version="1.11.2"/>
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.11.2"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.2"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.11.0-beta.2"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.1"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.11.0-beta.2"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.11.0-beta.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0"/>
+    </ItemGroup>
+
+</Project>

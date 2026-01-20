@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandardDependencies.Injection", "StandardDependencies.Injection\StandardDependencies.Injection.csproj", "{F3523FE2-11BD-4380-8EA6-212BF56F7242}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandardDependencies.Models", "StandardDependencies.Models\StandardDependencies.Models.csproj", "{B62CC23E-97BB-4D1E-92DC-D0FE6D19FF88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3523FE2-11BD-4380-8EA6-212BF56F7242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3523FE2-11BD-4380-8EA6-212BF56F7242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3523FE2-11BD-4380-8EA6-212BF56F7242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3523FE2-11BD-4380-8EA6-212BF56F7242}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B62CC23E-97BB-4D1E-92DC-D0FE6D19FF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B62CC23E-97BB-4D1E-92DC-D0FE6D19FF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B62CC23E-97BB-4D1E-92DC-D0FE6D19FF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B62CC23E-97BB-4D1E-92DC-D0FE6D19FF88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
