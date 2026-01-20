@@ -1,0 +1,51 @@
+name: NuGet Package Publish Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  DOTNET_VERSION: '8.0.x'  # Adjust to your current .NET version
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build .NET application
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Generate Tag version
+        id: generate_tag_version
+        run: |
+          PACKAGE_VERSION=$(date +'%Y.%m.%d.%H%M%S')
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+      - name: Push Tag To Github
+        if: (github.ref == 'refs/heads/main') && (github.event_name == 'push')
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag $PACKAGE_VERSION
+          git push origin $PACKAGE_VERSION
+          
+      - name: Pack NuGet package
+        run: dotnet pack --no-build --configuration Release -o ./nupkg /p:PackageVersion=$PACKAGE_VERSION
+        
+      - name: Publish NuGet package
+        if: (github.ref == 'refs/heads/main') && (github.event_name == 'push')
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY https://api.nuget.org/v3/index.json --skip-duplicate
