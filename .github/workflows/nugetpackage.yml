@@ -48,4 +48,4 @@ jobs:
         
       - name: Publish NuGet package
         if: (github.ref == 'refs/heads/main') && (github.event_name == 'push')
-        run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
