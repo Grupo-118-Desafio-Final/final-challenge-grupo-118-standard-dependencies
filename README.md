@@ -40,13 +40,29 @@ Install-Package FinalChallenge.Grupo118.StandardDependencies.Models
 
 ```csharp
 using StandardDependencies.Injection;
+using StandardDependencies.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Leia as configurações do appsettings.json
+var swaggerOptions = builder
+    .Configuration
+    .GetSection(SwaggerOptions.SectionName)
+    .Get<SwaggerOptions>();
+
+var openTelemetryOptions = builder
+    .Configuration
+    .GetSection(OpenTelemetryOptions.SectionName)
+    .Get<OpenTelemetryOptions>();
+
 // Configura elementos comuns: Environment Variables, OpenTelemetry e Swagger
-builder.ConfigureCommonElements();
+builder.ConfigureCommonElements(openTelemetryOptions, swaggerOptions);
 
 var app = builder.Build();
+
+// Configure o middleware do Swagger
+app.UseStandarizedSwagger(swaggerOptions);
+
 app.Run();
 ```
 
@@ -72,16 +88,18 @@ app.Run();
 
 ## ⚙️ Configurações Detalhadas
 
+> **⚠️ Importante:** As configurações de OpenTelemetry e Swagger devem ser passadas explicitamente como parâmetros para os métodos de extensão. Embora as propriedades individuais tenham valores padrão, os objetos de configuração não podem ser nulos.
+
 ### OpenTelemetry
 
 A seção `OpenTelemetry` no `appsettings.json` configura a observabilidade da aplicação.
 
 | Propriedade | Tipo | Obrigatório | Valor Padrão | Descrição |
 |-------------|------|-------------|--------------|-----------|
-| `ServiceName` | string | ✅ Sim | - | Nome do serviço que será exibido no sistema de observabilidade (ex: Jaeger, Grafana) |
-| `ServiceVersion` | string | ✅ Sim | - | Versão do serviço para rastreamento de mudanças |
-| `Url` | string | ✅ Sim | `http://localhost:4317` | URL do coletor OpenTelemetry (OTLP endpoint) |
-| `Exporters` | array | ✅ Sim | `["OTLP"]` | Lista de exportadores a serem utilizados. Valores possíveis: `OTLP`, `Console` |
+| `ServiceName` | string | ✅ Sim       | `""` (vazio) | Nome do serviço que será exibido no sstema de observabilidade (ex: Jaeger, Grafana) |
+| `ServiceVersion` | string | ✅ Sim       | `""` (vazio) | Versão do serviço para rastreamento de mudanças |
+| `Url` | string | ✅ Sim       | `http://localhost:4317` | URL do coletor OpenTelemetry (OTLP endpoint) |
+| `Exporters` | array | ✅ Sim       | `["OTLP"]` | Lista de exportadores a serem utilizados. Valores possíveis: `OTLP`, `Console` |
 
 #### Valores Possíveis para Exporters
 
@@ -137,11 +155,11 @@ A seção `Swagger` no `appsettings.json` configura a documentação da API.
 
 | Propriedade | Tipo | Obrigatório | Valor Padrão | Descrição |
 |-------------|------|-------------|--------------|-----------|
-| `Version` | string | ❌ Não | `v1` | Versão da API exibida na documentação Swagger |
-| `Title` | string | ❌ Não | `API` | Título principal da documentação |
-| `Description` | string | ❌ Não | `API Documentation` | Descrição detalhada da API |
-| `ContactName` | string | ❌ Não | `API Support` | Nome do contato ou equipe responsável |
-| `ContactUrl` | string | ❌ Não | `http://example.com/support` | URL para contato (repositório GitHub, site, etc.) |
+| `Version` | string | ✅ Sim | `v1` | Versão da API exibida na documentação Swagger |
+| `Title` | string | ✅ Sim | `API` | Título principal da documentação |
+| `Description` | string | ✅ Sim | `API Documentation` | Descrição detalhada da API |
+| `ContactName` | string | ✅ Sim | `API Support` | Nome do contato ou equipe responsável |
+| `ContactUrl` | string | ✅ Sim | `http://example.com/support` | URL para contato (repositório GitHub, site, etc.) |
 
 #### Exemplo Completo
 
@@ -161,12 +179,41 @@ A seção `Swagger` no `appsettings.json` configura a documentação da API.
 
 ## 🔧 Configurações Avançadas
 
+### Leitura das Configurações
+
+As configurações devem ser lidas explicitamente do `appsettings.json` e passadas como parâmetros para os métodos de extensão:
+
+```csharp
+var swaggerOptions = builder.Configuration
+    .GetSection(SwaggerOptions.SectionName)
+    .Get<SwaggerOptions>();
+
+var openTelemetryOptions = builder.Configuration
+    .GetSection(OpenTelemetryOptions.SectionName)
+    .Get<OpenTelemetryOptions>();
+
+builder.ConfigureCommonElements(openTelemetryOptions, swaggerOptions);
+```
+
+### Middleware do Swagger
+
+O pacote fornece o método `UseStandarizedSwagger` que deve ser chamado no pipeline da aplicação para configurar o Swagger UI:
+
+```csharp
+app.UseStandarizedSwagger(swaggerOptions);
+```
+
+Este método configura:
+- O endpoint do Swagger JSON em `../swagger/v1/swagger.json`
+- A rota do Swagger UI na raiz da aplicação (`/`)
+- O título da documentação conforme especificado nas opções
+
 ### Personalizando o Swagger
 
 Você pode adicionar configurações personalizadas ao Swagger chamando `AddSwaggerGen` novamente em seu `Program.cs`. As configurações serão mescladas com as configurações do pacote.
 
 ```csharp
-builder.ConfigureCommonElements();
+builder.ConfigureCommonElements(openTelemetryOptions, swaggerOptions);
 
 // Adicionar segurança JWT ao Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -221,18 +268,31 @@ export Swagger__Version="v2"
 
 O pacote `StandardDependencies.Injection` já inclui as seguintes dependências:
 
+**OpenTelemetry Core:**
 - OpenTelemetry (1.11.2)
-- OpenTelemetry Exporters (OTLP e Console)
-- Instrumentações para:
-  - ASP.NET Core
-  - Entity Framework Core
-  - HTTP Client
-  - SQL Client
-  - PostgreSQL (Npgsql)
-  - Redis (StackExchange.Redis)
-  - MongoDB
-  - Runtime e Process
+- OpenTelemetry.Extensions.Hosting (1.11.2)
+
+**Exportadores:**
+- OpenTelemetry.Exporter.Console (1.11.2)
+- OpenTelemetry.Exporter.OpenTelemetryProtocol (1.11.2)
+
+**Instrumentações:**
+- OpenTelemetry.Instrumentation.AspNetCore (1.11.1)
+- OpenTelemetry.Instrumentation.Http (1.11.1)
+- OpenTelemetry.Instrumentation.Runtime (1.11.1)
+- OpenTelemetry.Instrumentation.Process (1.11.0-beta.2)
+- OpenTelemetry.Instrumentation.EntityFrameworkCore (1.14.0-beta.2)
+- OpenTelemetry.Instrumentation.SqlClient (1.11.0-beta.2)
+- OpenTelemetry.Instrumentation.StackExchangeRedis (1.11.0-beta.2)
+- Npgsql.OpenTelemetry (9.0.3)
+- MongoDB.Driver.Core.Extensions.DiagnosticSources (3.0.0)
+- MongoDB.Driver.Core.Extensions.OpenTelemetry (1.0.0)
+
+**Swagger:**
 - Swashbuckle.AspNetCore (10.1.0)
+
+**Outros:**
+- Microsoft.Extensions.Configuration (9.0.4)
 
 ---
 
@@ -269,11 +329,23 @@ O pacote `StandardDependencies.Injection` já inclui as seguintes dependências:
 
 ```csharp
 using StandardDependencies.Injection;
+using StandardDependencies.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Leia as configurações do appsettings.json
+var swaggerOptions = builder
+    .Configuration
+    .GetSection(SwaggerOptions.SectionName)
+    .Get<SwaggerOptions>();
+
+var openTelemetryOptions = builder
+    .Configuration
+    .GetSection(OpenTelemetryOptions.SectionName)
+    .Get<OpenTelemetryOptions>();
+
 // Configura elementos comuns
-builder.ConfigureCommonElements();
+builder.ConfigureCommonElements(openTelemetryOptions, swaggerOptions);
 
 // Adiciona seus próprios serviços
 builder.Services.AddControllers();
@@ -281,11 +353,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 // Configura o pipeline HTTP
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseStandarizedSwagger(swaggerOptions);
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
