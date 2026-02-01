@@ -23,7 +23,7 @@ public static class SwaggerExtensions
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlFilename = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
             options.SwaggerDoc(swaggerOptions.Version, new OpenApiInfo
