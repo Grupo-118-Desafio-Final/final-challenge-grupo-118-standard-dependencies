@@ -60,10 +60,16 @@ spec:
           value: {{ .value | quote }}
         {{- end }}
         # OpenTelemetry environment variables
-        {{- range .Values.firstApi.otlpEnv }}
-        - name: {{ .name }}
-          value: {{ .value | quote }}
-        {{- end }}
+        # - name: OTEL_SERVICE_NAME
+        #   value: {{ .Values.firstApi.otlpEnv.serviceName | quote }}
+        # - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        #   value: {{ .Values.opentelemetry.endpoint | quote }}
+        # - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        #   value: {{ .Values.firstApi.otlpEnv.protocol | quote }}
+        # - name: OTEL_RESOURCE_ATTRIBUTES
+        #   value: "deployment.environment={{ .Values.global.environment }},service.version={{ .Chart.AppVersion }}"
+        - name: OpenTelemetry__Url
+          value: {{ .Values.opentelemetry.endpoint | quote }}
       {{- with .Values.firstApi.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
