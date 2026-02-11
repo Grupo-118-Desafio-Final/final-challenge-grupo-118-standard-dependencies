@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -38,14 +39,23 @@ public static class OpenTelemetryExtensions
         Action<OtlpExporterOptions> otlpExporter = exporterOptions =>
         {
             exporterOptions.Endpoint = new Uri(openTelemetryOptions.Url);
+            exporterOptions.Headers = string.Empty;
             exporterOptions.Protocol = OtlpExportProtocol.Grpc;
         };
 
         // Configuração do OpenTelemetry Logging
+        builder.Logging.ClearProviders();
+        builder.Logging.AddJsonConsole(options =>
+        {
+            options.JsonWriterOptions = new JsonWriterOptions
+            {
+                Indented = false,
+            };
+        });
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.SetResourceBuilder(resourceBuilder);
-            logging.IncludeFormattedMessage = true;
+            logging.IncludeFormattedMessage = false;
             logging.IncludeScopes = true;
             logging.ParseStateValues = true;
             logging.AddOtlpExporter(otlpExporter);
