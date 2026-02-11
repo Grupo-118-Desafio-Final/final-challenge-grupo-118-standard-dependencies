@@ -1,0 +1,18 @@
+{{- if .Values.secondApi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otel-api-poc.secondApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.secondApi.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.secondApi.service.type }}
+  ports:
+    - port: {{ .Values.secondApi.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "otel-api-poc.secondApi.selectorLabels" . | nindent 4 }}
+{{- end }}
+

@@ -31,6 +31,8 @@ var openTelemetryOptions = builder
     .GetSection(OpenTelemetryOptions.SectionName)
     .Get<OpenTelemetryOptions>();
 
+builder.Services.AddHealthChecks();
+
 // Using the lib
 builder.ConfigureCommonElements(openTelemetryOptions, swaggerOptions);
 
@@ -48,6 +50,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/healthz");
 
 app.Run();
 

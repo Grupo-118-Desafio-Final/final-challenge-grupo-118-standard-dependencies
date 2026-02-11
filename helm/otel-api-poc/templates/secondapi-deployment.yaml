@@ -1,0 +1,79 @@
+{{- if .Values.secondApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otel-api-poc.secondApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.secondApi.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.secondApi.autoscaling.enabled }}
+  replicas: {{ .Values.secondApi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "otel-api-poc.secondApi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.secondApi.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "otel-api-poc.secondApi.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.secondApi.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "otel-api-poc.secondApi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.secondApi.podSecurityContext | nindent 8 }}
+      containers:
+      - name: secondapi
+        securityContext:
+          {{- toYaml .Values.secondApi.securityContext | nindent 12 }}
+        image: "{{ .Values.secondApi.image.repository }}:{{ .Values.secondApi.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.secondApi.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.secondApi.service.targetPort }}
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.secondApi.resources | nindent 12 }}
+        env:
+        {{- range .Values.secondApi.env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        # OpenTelemetry environment variables
+        {{- range .Values.secondApi.otlpEnv }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+      {{- with .Values.secondApi.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.secondApi.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.secondApi.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

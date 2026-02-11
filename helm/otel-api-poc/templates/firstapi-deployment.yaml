@@ -1,0 +1,79 @@
+{{- if .Values.firstApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otel-api-poc.firstApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.firstApi.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.firstApi.autoscaling.enabled }}
+  replicas: {{ .Values.firstApi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "otel-api-poc.firstApi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.firstApi.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "otel-api-poc.firstApi.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.firstApi.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "otel-api-poc.firstApi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.firstApi.podSecurityContext | nindent 8 }}
+      containers:
+      - name: firstapi
+        securityContext:
+          {{- toYaml .Values.firstApi.securityContext | nindent 12 }}
+        image: "{{ .Values.firstApi.image.repository }}:{{ .Values.firstApi.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.firstApi.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.firstApi.service.targetPort }}
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.firstApi.resources | nindent 12 }}
+        env:
+        {{- range .Values.firstApi.env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        # OpenTelemetry environment variables
+        {{- range .Values.firstApi.otlpEnv }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+      {{- with .Values.firstApi.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.firstApi.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.firstApi.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

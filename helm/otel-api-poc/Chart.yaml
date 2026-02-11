@@ -1,0 +1,7 @@
+apiVersion: v2
+name: otel-api-poc
+description: A Helm chart for deploying FirstApi and SecondApi with OpenTelemetry support
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+

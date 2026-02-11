@@ -1,0 +1,42 @@
+{{- if and .Values.secondApi.enabled .Values.secondApi.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "otel-api-poc.secondApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.secondApi.labels" . | nindent 4 }}
+  {{- with .Values.secondApi.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.secondApi.ingress.className }}
+  ingressClassName: {{ .Values.secondApi.ingress.className }}
+  {{- end }}
+  {{- if .Values.secondApi.ingress.tls }}
+  tls:
+    {{- range .Values.secondApi.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.secondApi.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "otel-api-poc.secondApi.fullname" $ }}
+                port:
+                  number: {{ $.Values.secondApi.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+

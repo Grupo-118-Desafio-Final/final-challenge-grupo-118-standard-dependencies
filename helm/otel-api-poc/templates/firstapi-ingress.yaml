@@ -1,0 +1,41 @@
+{{- if and .Values.firstApi.enabled .Values.firstApi.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "otel-api-poc.firstApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.firstApi.labels" . | nindent 4 }}
+  {{- with .Values.firstApi.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.firstApi.ingress.className }}
+  ingressClassName: {{ .Values.firstApi.ingress.className }}
+  {{- end }}
+  {{- if .Values.firstApi.ingress.tls }}
+  tls:
+    {{- range .Values.firstApi.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.firstApi.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "otel-api-poc.firstApi.fullname" $ }}
+                port:
+                  number: {{ $.Values.firstApi.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
