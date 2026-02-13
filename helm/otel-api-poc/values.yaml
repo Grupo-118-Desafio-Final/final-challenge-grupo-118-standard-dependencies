@@ -25,7 +25,7 @@ firstApi:
   image:
     repository: firstapi
     pullPolicy: IfNotPresent
-    tag: "1.10"
+    tag: "1.11"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -111,7 +111,7 @@ secondApi:
   image:
     repository: secondapi
     pullPolicy: IfNotPresent
-    tag: "1.10"
+    tag: "1.11"
 
   imagePullSecrets: []
   nameOverride: ""
