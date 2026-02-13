@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -28,27 +29,35 @@ public static class OpenTelemetryExtensions
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
         var resourceBuilder = ResourceBuilder.CreateDefault()
-            .AddService(openTelemetryOptions.ServiceName, serviceVersion: openTelemetryOptions.ServiceVersion)
+            .AddService(
+                serviceName: openTelemetryOptions.ServiceName,
+                serviceVersion: openTelemetryOptions.ServiceVersion,
+                serviceInstanceId: Environment.MachineName)
             .AddAttributes(new[]
             {
                 new KeyValuePair<string, object>("deployment.environment", environment),
-                new KeyValuePair<string, object>("host.name", Environment.MachineName)
             });
 
-        Action<OtlpExporterOptions> otlpExporter = exporterOptions =>
-        {
-            exporterOptions.Endpoint = new Uri(openTelemetryOptions.Url);
-            exporterOptions.Protocol = OtlpExportProtocol.Grpc;
-        };
-
         // Configuração do OpenTelemetry Logging
+        builder.Logging.ClearProviders();
+        builder.Logging.AddJsonConsole(options =>
+        {
+            options.JsonWriterOptions = new JsonWriterOptions
+            {
+                Indented = false,
+            };
+        });
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.SetResourceBuilder(resourceBuilder);
-            logging.IncludeFormattedMessage = true;
+            logging.IncludeFormattedMessage = false;
             logging.IncludeScopes = true;
             logging.ParseStateValues = true;
-            logging.AddOtlpExporter(otlpExporter);
+            logging.AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri($"{openTelemetryOptions.Url}/v1/logs");
+                options.Protocol = OtlpExportProtocol.HttpProtobuf;
+            });
         });
 
         // Configuração do que será exportado no uso dos logs
@@ -77,7 +86,11 @@ public static class OpenTelemetryExtensions
                     .AddMongoDBInstrumentation();
 
                 if (openTelemetryOptions.Exporters.Contains(ExporterTypes.OTLP))
-                    tracing.AddOtlpExporter(otlpExporter);
+                    tracing.AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri($"{openTelemetryOptions.Url}/v1/traces");
+                        options.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
 
                 if (openTelemetryOptions.Exporters.Contains(ExporterTypes.Console))
                     tracing.AddConsoleExporter();
@@ -97,7 +110,11 @@ public static class OpenTelemetryExtensions
                     .AddMeter(openTelemetryOptions.ServiceName);
 
                 if (openTelemetryOptions.Exporters.Contains(ExporterTypes.OTLP))
-                    metrics.AddOtlpExporter(otlpExporter);
+                    metrics.AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri($"{openTelemetryOptions.Url}/v1/metrics");
+                        options.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
 
                 if (openTelemetryOptions.Exporters.Contains(ExporterTypes.Console))
                     metrics.AddConsoleExporter();

@@ -1,0 +1,18 @@
+{{- if .Values.firstApi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otel-api-poc.firstApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.firstApi.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.firstApi.service.type }}
+  ports:
+    - port: {{ .Values.firstApi.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "otel-api-poc.firstApi.selectorLabels" . | nindent 4 }}
+{{- end }}
+

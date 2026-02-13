@@ -1,0 +1,33 @@
+{{- if and .Values.secondApi.enabled .Values.secondApi.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "otel-api-poc.secondApi.fullname" . }}
+  labels:
+    {{- include "otel-api-poc.secondApi.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "otel-api-poc.secondApi.fullname" . }}
+  minReplicas: {{ .Values.secondApi.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.secondApi.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.secondApi.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.secondApi.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.secondApi.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.secondApi.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+

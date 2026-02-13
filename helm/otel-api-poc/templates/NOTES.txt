@@ -1,0 +1,60 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+Services deployed:
+
+{{- if .Values.firstApi.enabled }}
+
+FirstApi:
+  - Service: {{ include "otel-api-poc.firstApi.fullname" . }}
+  - Port: {{ .Values.firstApi.service.port }}
+  
+  {{- if .Values.firstApi.ingress.enabled }}
+  You can access FirstApi at:
+  {{- range $host := .Values.firstApi.ingress.hosts }}
+    {{- range .paths }}
+    http{{ if $.Values.firstApi.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+    {{- end }}
+  {{- end }}
+  {{- else }}
+  Get the FirstApi URL by running:
+    export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "otel-api-poc.name" . }}-firstapi,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+    export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+    echo "Visit http://127.0.0.1:8080 to use FirstApi"
+    kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+  {{- end }}
+{{- end }}
+
+{{- if .Values.secondApi.enabled }}
+
+SecondApi:
+  - Service: {{ include "otel-api-poc.secondApi.fullname" . }}
+  - Port: {{ .Values.secondApi.service.port }}
+  
+  {{- if .Values.secondApi.ingress.enabled }}
+  You can access SecondApi at:
+  {{- range $host := .Values.secondApi.ingress.hosts }}
+    {{- range .paths }}
+    http{{ if $.Values.secondApi.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+    {{- end }}
+  {{- end }}
+  {{- else }}
+  Get the SecondApi URL by running:
+    export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "otel-api-poc.name" . }}-secondapi,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+    export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+    echo "Visit http://127.0.0.1:8081 to use SecondApi"
+    kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8081:$CONTAINER_PORT
+  {{- end }}
+{{- end }}
+
+OpenTelemetry Configuration:
+  - OTLP Endpoint: {{ .Values.opentelemetry.endpoint }}
+  - Service Namespace: {{ .Values.opentelemetry.serviceNamespace }}
+  - Environment: {{ .Values.global.environment }}
+
