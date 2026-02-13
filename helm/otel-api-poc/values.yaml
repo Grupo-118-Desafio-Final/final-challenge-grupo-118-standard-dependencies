@@ -11,8 +11,11 @@ global:
 opentelemetry:
   # OTLP endpoint for exporting telemetry data
   endpoint: "http://grafana-k8s-monitoring-alloy-receiver.otel-api-poc.svc.cluster.local:4318"
+  # endpoint: "http://opentelemetry-collector.opentelemetry-system.svc.cluster.local:4318"  
+  # endpoint: "http://opentelemetry-stack-daemon-collector.opentelemetry-operator-system.svc.cluster.local:4318"  
   # Service namespace for grouping services
-  serviceNamespace: "opentelemetry-operator-system"
+  # serviceNamespace: "opentelemetry-operator-system"
+  serviceNamespace: "otel-api-poc"
 
 # FirstApi configuration
 firstApi:
@@ -22,7 +25,7 @@ firstApi:
   image:
     repository: firstapi
     pullPolicy: IfNotPresent
-    tag: "1.6"
+    tag: "1.10"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -108,7 +111,7 @@ secondApi:
   image:
     repository: secondapi
     pullPolicy: IfNotPresent
-    tag: "1.6"
+    tag: "1.10"
 
   imagePullSecrets: []
   nameOverride: ""
