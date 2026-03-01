@@ -17,7 +17,10 @@ public static class ConfigureExtensions
         SwaggerOptions? swaggerOptions = null)
     {
         builder.Configuration.AddEnvironmentVariables();
-        builder.ConfigureOpenTelemetry(openTelemetryOptions);
-        builder.ConfigureSwagger(swaggerOptions);
+        if (openTelemetryOptions != null)
+            builder.ConfigureOpenTelemetry(openTelemetryOptions);
+
+        if (swaggerOptions != null)
+            builder.ConfigureSwagger(swaggerOptions);
     }
 }
