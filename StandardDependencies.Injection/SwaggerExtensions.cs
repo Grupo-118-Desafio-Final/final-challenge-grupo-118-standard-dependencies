@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using StandardDependencies.Models;
 
 namespace StandardDependencies.Injection;
